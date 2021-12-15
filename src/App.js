@@ -1,23 +1,36 @@
-import logo from './logo.svg';
-import './App.css';
-
+import "./App.css";
+import SearchBar from "./Components/SearchBar";
+import CardRepo from "./Components/CardRepo";
+import React from "react";
+import Container from "./Components/Container";
 function App() {
+  const [text, setText] = React.useState("");
+  const [error, setError] = React.useState(false);
+  const [myRes, setmyRes] = React.useState();
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!e.target.elements.query.value) {
+      setError(true);
+    } else {
+      setError(false);
+      setText(e.target.elements.query.value);
+      console.log(e.target.elements.query.value);
+      console.log(text);
+    }
+  };
+  React.useEffect(() => {
+    if (!text) {
+      return;
+    }
+    fetch(`https://api.github.com/search/repositories?q=${text}`)
+      .then((res) => res.json())
+      .then((data) => setmyRes(data.items));
+  }, [text]);
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <SearchBar error={error} handleSubmit={handleSubmit} />
+      {myRes && <Container myRes={myRes} />}
     </div>
   );
 }
